@@ -1,0 +1,24 @@
+# Git
+.git/
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# Generated at runtime — rebuilt inside container on first start
+static/h2_sample_dataset.csv
+
+# Dev / IDE
+.vscode/
+.idea/
+*.md
+deploy/
+
+# OS
+.DS_Store
+Thumbs.db

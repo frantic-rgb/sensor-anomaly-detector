@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Smoke-test imports
+        run: |
+          python3 -c "
+          from app.simulator import SensorSimulator
+          from app.detector import AnomalyDetector
+          from app.comparison import MultiModelDetector
+
+          sim = SensorSimulator(anomaly_rate=0.0)
+          det = AnomalyDetector()
+          det.train()
+
+          reading = sim.next()
+          result  = det.predict(reading)
+          assert 'is_anomaly' in result
+          assert 'risk_score' in result
+          assert 0 <= result['risk_score'] <= 100
+
+          print('pressure:', reading['pressure'])
+          print('result:  ', result)
+          print('PASS')
+          "
+
+      - name: Smoke-test comparison models
+        run: |
+          python3 -c "
+          from app.simulator import SensorSimulator
+          from app.comparison import MultiModelDetector
+
+          sim = SensorSimulator(anomaly_rate=0.0)
+          mmd = MultiModelDetector()
+          mmd.train()
+
+          for _ in range(5):
+              reading = sim.next()
+              preds   = mmd.predict_all(reading)
+              for m, p in preds.items():
+                  assert 0 <= p['score'] <= 100, f'{m} score out of range: {p[\"score\"]}'
+
+          print('All model scores in 0-100 range: PASS')
+          "
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t h2-anomaly-detector .
+
+      - name: Start container and wait for health
+        run: |
+          docker run -d --name demo -p 8000:8000 h2-anomaly-detector
+          for i in $(seq 1 20); do
+            sleep 3
+            if curl -sf http://localhost:8000/api/status > /dev/null 2>&1; then
+              echo "Server ready after $((i*3))s"
+              break
+            fi
+          done
+          curl -sf http://localhost:8000/api/status
+          docker stop demo

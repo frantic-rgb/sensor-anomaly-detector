@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Comparison — H₂ Anomaly Detector</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="compare.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <polygon points="12 2 2 7 2 17 12 22 22 17 22 7"/>
+        <polyline points="12 22 12 12"/>
+        <line x1="2" y1="7" x2="12" y2="12"/>
+        <line x1="22" y1="7" x2="12" y2="12"/>
+      </svg>
+      <div>
+        <h1>ML Model Comparison</h1>
+        <p class="subtitle">H₂ Test Bench · 5 Anomaly Detection Approaches · Same Dataset</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <a href="/" class="nav-link">← Live Dashboard</a>
+    </div>
+  </header>
+
+  <main class="compare-main">
+
+    <div class="compare-controls card">
+      <div class="controls-row">
+        <button id="sample-btn" class="run-btn sample-btn">Load Sample Dataset (500 cycles)</button>
+        <span class="controls-sep">or</span>
+        <label for="cmp-cycles">Simulate</label>
+        <input id="cmp-cycles" type="number" value="100" min="20" max="500">
+        <label>cycles</label>
+        <button id="run-btn" class="run-btn">Run</button>
+      </div>
+      <p id="cmp-status" class="cmp-status"></p>
+    </div>
+
+    <details class="card model-info-card">
+      <summary><h2 style="display:inline">About the Models</h2></summary>
+      <div class="model-info-grid">
+
+        <div class="model-info-item">
+          <div class="model-info-header">
+            <span class="model-dot" style="background:#0F766E"></span>
+            <strong>Isolation Forest</strong>
+            <span class="model-tag">tree-based</span>
+          </div>
+          <p>Randomly partitions the feature space using binary trees. Anomalies are isolated in fewer splits because they sit far from the bulk of normal data. Fast and scalable, but the fixed contamination threshold makes it conservative — high precision, lower recall.</p>
+          <p class="model-note">Used as the live stream model. Scores here are normalised to 0–100 based on training-data percentiles.</p>
+        </div>
+
+        <div class="model-info-item">
+          <div class="model-info-header">
+            <span class="model-dot" style="background:#0EA5E9"></span>
+            <strong>Local Outlier Factor</strong>
+            <span class="model-tag">density-based</span>
+          </div>
+          <p>Compares the local density of a point to its k nearest neighbours. A point in a sparse region surrounded by dense neighbours scores high. Catches local anomalies that global methods miss, often achieving the best F1 on this dataset.</p>
+          <p class="model-note">Sensitive to the n_neighbors hyperparameter (here: 20).</p>
+        </div>
+
+        <div class="model-info-item">
+          <div class="model-info-header">
+            <span class="model-dot" style="background:#8B5CF6"></span>
+            <strong>One-Class SVM</strong>
+            <span class="model-tag">boundary-based</span>
+          </div>
+          <p>Learns a tight RBF-kernel hypersphere around the normal training data. Points outside the boundary are flagged. Good when the normal region is compact, but the kernel boundary can be irregular — leading to more false positives on noisy sensor data.</p>
+          <p class="model-note">Raw scores (signed distance to boundary) are rescaled to 0–100 for this comparison.</p>
+        </div>
+
+        <div class="model-info-item">
+          <div class="model-info-header">
+            <span class="model-dot" style="background:#F59E0B"></span>
+            <strong>Elliptic Envelope</strong>
+            <span class="model-tag">statistical</span>
+          </div>
+          <p>Fits a multivariate Gaussian to the training data and flags points with a Mahalanobis distance above the contamination threshold. Works well when sensors are linearly correlated (pressure–temperature coupling fits this). Breaks down if the distribution is non-Gaussian.</p>
+          <p class="model-note">Raw Mahalanobis distances span enormous ranges; scores are normalised before display.</p>
+        </div>
+
+        <div class="model-info-item">
+          <div class="model-info-header">
+            <span class="model-dot" style="background:#34D399"></span>
+            <strong>Z-Score Baseline</strong>
+            <span class="model-tag">statistical baseline</span>
+          </div>
+          <p>Takes the maximum absolute z-score across all standardised features. Flags readings where any single sensor deviates by more than 3.2 σ from its training mean. Fully interpretable — a reading is flagged only when one sensor clearly breaks its own range.</p>
+          <p class="model-note">Misses multi-feature anomalies where no single sensor exceeds the threshold alone.</p>
+        </div>
+
+      </div>
+
+      <div class="model-info-note">
+        <strong>Why do scores differ run to run?</strong> Each simulation run uses a new random seed, so anomaly timing and types vary. The pre-generated sample dataset (500 cycles) gives reproducible results for direct comparison.
+        <br><br>
+        <strong>Why is Isolation Forest the live model if LOF scores better here?</strong> Isolation Forest runs in O(1) per reading after training — it can predict in microseconds. LOF with <code>novelty=True</code> is slower per prediction and less stable at very high streaming rates. For batch analysis (this page), LOF is the better choice.
+      </div>
+    </details>
+
+    <div id="results" class="hidden">
+
+      <section class="card">
+        <h2>Metrics Summary</h2>
+        <div class="metrics-table-wrap">
+          <table class="metrics-table" id="metrics-table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1</th>
+                <th>FP Rate</th>
+                <th>TP</th>
+                <th>FP</th>
+                <th>FN</th>
+                <th>TN</th>
+              </tr>
+            </thead>
+            <tbody id="metrics-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="charts-row">
+        <section class="card chart-section">
+          <h2>F1 Score Comparison</h2>
+          <div class="cmp-chart-wrap">
+            <canvas id="f1-chart"></canvas>
+          </div>
+        </section>
+
+        <section class="card chart-section">
+          <h2>Precision vs Recall</h2>
+          <div class="cmp-chart-wrap">
+            <canvas id="pr-chart"></canvas>
+          </div>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>Detection Timeline <span class="timeline-note">(anomaly scores — ground truth marked in red)</span></h2>
+        <div class="timeline-chart-wrap">
+          <canvas id="timeline-chart"></canvas>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script src="compare.js"></script>
+</body>
+</html>

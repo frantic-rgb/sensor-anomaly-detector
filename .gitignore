@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Generated at runtime — too large for git, recreated on first server start
+static/h2_sample_dataset.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

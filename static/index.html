@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H₂ Sensor Anomaly Detector</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <polygon points="12 2 2 7 2 17 12 22 22 17 22 7"/>
+        <polyline points="12 22 12 12"/>
+        <line x1="2" y1="7" x2="12" y2="12"/>
+        <line x1="22" y1="7" x2="12" y2="12"/>
+      </svg>
+      <div>
+        <h1>H₂ Sensor Anomaly Detector</h1>
+        <p class="subtitle">Gaseous Hydrogen Test Bench · 0–105 MPa · ML-Powered</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="cycle-info">Cycle <span id="cycle-count">0</span></span>
+      <div class="speed-control">
+        <span class="speed-label">Speed</span>
+        <button class="speed-btn active" data-speed="1">1×</button>
+        <button class="speed-btn" data-speed="5">5×</button>
+        <button class="speed-btn" data-speed="10">10×</button>
+      </div>
+      <a href="/compare.html" class="nav-link-btn">Model Comparison →</a>
+      <span id="ws-badge" class="badge badge-connecting">● CONNECTING</span>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="charts-col">
+
+      <div class="chart-card" id="card-pressure">
+        <div class="chart-header">
+          <div class="sensor-label">
+            <span class="sensor-dot" style="background:#0F766E"></span>
+            <span class="sensor-name">Test Pressure</span>
+          </div>
+          <div class="sensor-reading">
+            <span class="sensor-value" id="val-pressure">—</span>
+            <span class="sensor-unit">MPa</span>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chart-pressure"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" id="card-temperature">
+        <div class="chart-header">
+          <div class="sensor-label">
+            <span class="sensor-dot" style="background:#0EA5E9"></span>
+            <span class="sensor-name">Gas Temperature</span>
+          </div>
+          <div class="sensor-reading">
+            <span class="sensor-value" id="val-temperature">—</span>
+            <span class="sensor-unit">°C</span>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chart-temperature"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" id="card-flow">
+        <div class="chart-header">
+          <div class="sensor-label">
+            <span class="sensor-dot" style="background:#8B5CF6"></span>
+            <span class="sensor-name">H₂ Flow</span>
+          </div>
+          <div class="sensor-reading">
+            <span class="sensor-value" id="val-flow">—</span>
+            <span class="sensor-unit">ml/min</span>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chart-flow"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" id="card-specimen_temp">
+        <div class="chart-header">
+          <div class="sensor-label">
+            <span class="sensor-dot" style="background:#F59E0B"></span>
+            <span class="sensor-name">Specimen Temp.</span>
+          </div>
+          <div class="sensor-reading">
+            <span class="sensor-value" id="val-specimen_temp">—</span>
+            <span class="sensor-unit">°C</span>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chart-specimen_temp"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <aside class="sidebar">
+
+      <section class="card model-card">
+        <h2>ML Model</h2>
+        <dl>
+          <dt>Algorithm</dt>      <dd>Isolation Forest</dd>
+          <dt>Learning</dt>       <dd>Unsupervised</dd>
+          <dt>Library</dt>        <dd>scikit-learn 1.5</dd>
+          <dt>Training</dt>       <dd>80 normal cycles</dd>
+          <dt>Contamination</dt>  <dd title="Model hyperparameter: expected fraction of anomalies in training data">5 % (model param)</dd>
+          <dt>Features</dt>       <dd title="pressure · gas temp · H₂ flow · specimen temp · cycle phase">p · T · flow · T_s · phase</dd>
+          <dt>Stream</dt>         <dd id="stream-rate">2 readings / sec</dd>
+          <dt>Medium</dt>         <dd>H₂ gaseous</dd>
+        </dl>
+      </section>
+
+      <section class="card stats-card">
+        <div class="stat">
+          <span class="stat-value" id="stat-total">0</span>
+          <span class="stat-label">readings</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value danger" id="stat-anomalies">0</span>
+          <span class="stat-label">anomalies</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value muted" id="stat-rate">—</span>
+          <span class="stat-label">rate</span>
+        </div>
+      </section>
+
+      <section class="card log-card">
+        <h2>Anomaly Log</h2>
+        <div id="anomaly-log">
+          <p class="log-empty">No anomalies detected yet.</p>
+        </div>
+      </section>
+
+      <section class="card export-card">
+        <h2>Dataset Export</h2>
+        <p class="export-desc">Download a labelled CSV dataset for ML model comparison.</p>
+        <div class="export-row">
+          <label for="export-cycles">Cycles</label>
+          <input id="export-cycles" type="number" value="100" min="10" max="1000">
+        </div>
+        <a id="export-btn" class="export-btn" href="/api/dataset?cycles=100" download>
+          ↓ Download CSV
+        </a>
+      </section>
+
+    </aside>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
