@@ -77,95 +77,81 @@
 
 .hidden { display: none !important; }
 
-/* Model info card */
-.model-info-card {
-  cursor: pointer;
+/* Model overview table */
+.model-table-wrap { overflow-x: auto; margin-top: 4px; }
+
+.model-overview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  table-layout: fixed;
 }
-.model-info-card summary {
-  list-style: none;
-  padding: 2px 0 4px;
-  color: var(--accent);
-  font-size: 11px;
+.model-overview-table td { word-wrap: break-word; }
+.model-overview-table th {
+  text-align: left;
+  padding: 9px 12px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
-.model-info-card summary::after {
-  content: ' ▸';
-  font-size: 10px;
+.model-overview-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid rgba(36, 52, 71, 0.5);
+  vertical-align: middle;
+  color: var(--subtle);
 }
-.model-info-card[open] summary::after {
-  content: ' ▾';
-}
-.model-info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
-  margin-top: 14px;
-}
-.model-info-item {
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 14px;
-}
-.model-info-header {
+.model-overview-table tr:last-child td { border-bottom: none; }
+.model-overview-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+.model-name-cell {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.model-info-header strong {
-  font-size: 13px;
-  color: var(--text);
-}
-.model-tag {
-  font-size: 10px;
+  gap: 9px;
   font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  padding-left: 13px !important;
+}
+
+.model-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.rec-tag {
+  font-size: 10px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 2px 6px;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
   border-radius: 4px;
-  margin-left: auto;
+  white-space: nowrap;
 }
-.model-info-item p {
+.rec-tag.live     { color: var(--accent);  background: rgba(15,118,110,0.15); border: 1px solid rgba(15,118,110,0.35); }
+.rec-tag.batch    { color: #0EA5E9;        background: rgba(14,165,233,0.12); border: 1px solid rgba(14,165,233,0.35); }
+.rec-tag.baseline { color: #34D399;        background: rgba(52,211,153,0.10); border: 1px solid rgba(52,211,153,0.30); }
+
+/* Metrics legend */
+.metrics-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 6px 0 14px;
   font-size: 12px;
-  color: var(--subtle);
-  line-height: 1.6;
-  margin-bottom: 6px;
+  color: var(--muted);
 }
-.model-note {
-  font-size: 11px !important;
-  color: var(--muted) !important;
-  font-style: italic;
-}
-.model-note code {
-  font-family: monospace;
-  background: var(--card);
-  padding: 1px 4px;
-  border-radius: 3px;
-}
-.model-info-note {
-  margin-top: 14px;
-  padding: 12px 14px;
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 8px 8px 0;
-  font-size: 12px;
-  color: var(--subtle);
-  line-height: 1.7;
-}
-.model-info-note code {
-  font-family: monospace;
-  background: var(--card);
-  padding: 1px 5px;
-  border-radius: 3px;
-  font-size: 11px;
-  color: var(--accent);
+.metrics-legend strong { color: var(--subtle); }
+.legend-counts {
+  width: 100%;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
 }
 
 /* Metrics table */
@@ -251,6 +237,34 @@
   height: 260px;
   position: relative;
   margin-top: 4px;
+}
+
+.timeline-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.zoom-reset-btn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.zoom-reset-btn:hover { color: var(--text); }
+
+.timeline-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 2px 0 6px;
 }
 
 .timeline-note {

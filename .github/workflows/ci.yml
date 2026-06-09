@@ -21,46 +21,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Smoke-test imports
-        run: |
-          python3 -c "
-          from app.simulator import SensorSimulator
-          from app.detector import AnomalyDetector
-          from app.comparison import MultiModelDetector
-
-          sim = SensorSimulator(anomaly_rate=0.0)
-          det = AnomalyDetector()
-          det.train()
-
-          reading = sim.next()
-          result  = det.predict(reading)
-          assert 'is_anomaly' in result
-          assert 'risk_score' in result
-          assert 0 <= result['risk_score'] <= 100
-
-          print('pressure:', reading['pressure'])
-          print('result:  ', result)
-          print('PASS')
-          "
-
-      - name: Smoke-test comparison models
-        run: |
-          python3 -c "
-          from app.simulator import SensorSimulator
-          from app.comparison import MultiModelDetector
-
-          sim = SensorSimulator(anomaly_rate=0.0)
-          mmd = MultiModelDetector()
-          mmd.train()
-
-          for _ in range(5):
-              reading = sim.next()
-              preds   = mmd.predict_all(reading)
-              for m, p in preds.items():
-                  assert 0 <= p['score'] <= 100, f'{m} score out of range: {p[\"score\"]}'
-
-          print('All model scores in 0-100 range: PASS')
-          "
+      - name: Run tests
+        run: pytest tests/ -v
 
   docker:
     runs-on: ubuntu-latest

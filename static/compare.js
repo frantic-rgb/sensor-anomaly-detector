@@ -269,6 +269,8 @@ function renderTimeline(data) {
     yAxisID: 'y',
   }));
 
+  document.getElementById('zoom-reset-btn').onclick = () => timelineChart?.resetZoom();
+
   timelineChart = new Chart(document.getElementById('timeline-chart'), {
     type: 'line',
     data: {
@@ -299,6 +301,10 @@ function renderTimeline(data) {
           borderColor: '#243447',
           borderWidth: 1,
           filter: item => item.datasetIndex !== 0,
+        },
+        zoom: {
+          zoom:  { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
+          pan:   { enabled: true, mode: 'x' },
         },
       },
       scales: {
