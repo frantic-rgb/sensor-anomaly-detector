@@ -69,6 +69,8 @@ Simulates a piston-compressor cycle (0–105 MPa), streams live sensor data via 
 git clone https://github.com/frantic-rgb/sensor-anomaly-detector.git
 cd sensor-anomaly-detector
 
+python3 -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
