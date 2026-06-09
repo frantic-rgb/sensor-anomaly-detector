@@ -73,18 +73,13 @@ pip install -r requirements.txt
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Open [http://localhost:8000](http://localhost:8000).  
-The 100-cycle sample dataset is bundled and available immediately.
-
 ### Docker
 
 ```bash
 docker compose up --build
 ```
 
-### AWS EC2 (Free Tier)
-
-See [deploy/AWS_DEPLOY.md](deploy/AWS_DEPLOY.md) for a step-by-step guide using a t2.micro instance.
+Open [http://localhost:8000](http://localhost:8000).
 
 ---
 
@@ -165,9 +160,6 @@ sensor-anomaly-detector/
 │   ├── compare.js            # Metrics, charts, CSV parser
 │   ├── compare.css           # Comparison page styles
 │   └── h2_sample_dataset.csv # Bundled 100-cycle reference dataset
-├── deploy/
-│   ├── AWS_DEPLOY.md    # EC2 free-tier deployment guide
-│   └── ec2-userdata.sh  # EC2 user-data bootstrap script
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
