@@ -35,7 +35,7 @@ document.getElementById('sample-btn').addEventListener('click', async () => {
   const status = document.getElementById('cmp-status');
   const btn    = document.getElementById('sample-btn');
   btn.disabled = true;
-  status.textContent = 'Loading sample dataset (500 cycles)…';
+  status.textContent = 'Loading sample dataset (100 cycles)…';
   try {
     const res  = await fetch('/h2_sample_dataset.csv');
     if (!res.ok) throw new Error('Sample file not ready yet — start the server first.');

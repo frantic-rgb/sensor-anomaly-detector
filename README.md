@@ -15,7 +15,7 @@ Simulates a piston-compressor cycle (0–105 MPa), streams live sensor data via 
 - **Live WebSocket stream** — 2 readings/sec, adjustable to 1×/5×/10× speed
 - **Model comparison page** — Precision, Recall, F1, FPR table + F1 bar chart + Precision-Recall scatter + detection timeline
 - **Labelled dataset export** — CSV with ground-truth labels and predictions from all five models
-- **Pre-generated sample dataset** — 500-cycle CSV generated at first startup for instant model comparison
+- **Bundled sample dataset** — 100-cycle reference CSV included in the repo for instant, reproducible model comparison
 
 ---
 
@@ -74,7 +74,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 Open [http://localhost:8000](http://localhost:8000).  
-The 500-cycle sample dataset is generated automatically on first start (~5 s).
+The 100-cycle sample dataset is bundled and available immediately.
 
 ### Docker
 
@@ -155,15 +155,16 @@ sensor-anomaly-detector/
 ├── app/
 │   ├── main.py          # FastAPI routes, WebSocket, startup lifecycle
 │   ├── simulator.py     # H₂ test bench physics + anomaly injection
-│   ├── model.py         # Single IsolationForest detector (live stream)
-│   └── models.py        # Five-model comparison detector
+│   ├── detector.py      # Single IsolationForest detector (live stream)
+│   └── comparison.py    # Five-model comparison detector
 ├── static/
-│   ├── index.html       # Live dashboard
-│   ├── app.js           # WebSocket client, Chart.js charts
-│   ├── style.css        # Dark theme
-│   ├── compare.html     # Model comparison page
-│   ├── compare.js       # Metrics, charts, CSV parser
-│   └── compare.css      # Comparison page styles
+│   ├── index.html            # Live dashboard
+│   ├── app.js                # WebSocket client, Chart.js charts
+│   ├── style.css             # Dark theme
+│   ├── compare.html          # Model comparison page
+│   ├── compare.js            # Metrics, charts, CSV parser
+│   ├── compare.css           # Comparison page styles
+│   └── h2_sample_dataset.csv # Bundled 100-cycle reference dataset
 ├── deploy/
 │   ├── AWS_DEPLOY.md    # EC2 free-tier deployment guide
 │   └── ec2-userdata.sh  # EC2 user-data bootstrap script

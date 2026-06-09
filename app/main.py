@@ -37,7 +37,7 @@ detector.train()
 # ── Startup: pre-generate sample dataset ─────────────────────────────────
 
 def _generate_sample_file() -> None:
-    """Pre-generate a labelled 500-cycle dataset with predictions from all five models."""
+    """Pre-generate a labelled 100-cycle dataset with predictions from all five models."""
     sim = SensorSimulator(anomaly_rate=ANOMALY_RATE)
     mmd = MultiModelDetector()
     mmd.train()
