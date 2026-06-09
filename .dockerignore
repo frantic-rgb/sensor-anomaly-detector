@@ -10,9 +10,6 @@ __pycache__/
 venv/
 .venv/
 
-# Generated at runtime — rebuilt inside container on first start
-static/h2_sample_dataset.csv
-
 # Dev / IDE
 .vscode/
 .idea/

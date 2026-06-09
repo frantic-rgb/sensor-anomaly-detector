@@ -16,7 +16,7 @@ from app.simulator import SensorSimulator
 # ── Constants ─────────────────────────────────────────────────────────────
 
 SAMPLE_PATH   = pathlib.Path(__file__).parent.parent / "static" / "h2_sample_dataset.csv"
-SAMPLE_CYCLES = 500
+SAMPLE_CYCLES = 100
 ANOMALY_RATE  = 0.06
 BASE_INTERVAL = 0.5   # seconds per WebSocket reading at 1× speed
 
@@ -73,7 +73,9 @@ def _generate_sample_file() -> None:
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     if not SAMPLE_PATH.exists():
-        await asyncio.get_event_loop().run_in_executor(None, _generate_sample_file)
+        # Run in background so the server starts accepting requests immediately
+        loop = asyncio.get_running_loop()
+        loop.run_in_executor(None, _generate_sample_file)
     yield
 
 

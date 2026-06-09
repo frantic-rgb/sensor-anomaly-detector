@@ -34,7 +34,7 @@
 
     <div class="compare-controls card">
       <div class="controls-row">
-        <button id="sample-btn" class="run-btn sample-btn">Load Sample Dataset (500 cycles)</button>
+        <button id="sample-btn" class="run-btn sample-btn">Load Sample Dataset (100 cycles)</button>
         <span class="controls-sep">or</span>
         <label for="cmp-cycles">Simulate</label>
         <input id="cmp-cycles" type="number" value="100" min="20" max="500">
@@ -101,7 +101,7 @@
       </div>
 
       <div class="model-info-note">
-        <strong>Why do scores differ run to run?</strong> Each simulation run uses a new random seed, so anomaly timing and types vary. The pre-generated sample dataset (500 cycles) gives reproducible results for direct comparison.
+        <strong>Why do scores differ run to run?</strong> Each simulation run uses a new random seed, so anomaly timing and types vary. The pre-generated sample dataset (100 cycles) gives reproducible results for direct comparison.
         <br><br>
         <strong>Why is Isolation Forest the live model if LOF scores better here?</strong> Isolation Forest runs in O(1) per reading after training — it can predict in microseconds. LOF with <code>novelty=True</code> is slower per prediction and less stable at very high streaming rates. For batch analysis (this page), LOF is the better choice.
       </div>
